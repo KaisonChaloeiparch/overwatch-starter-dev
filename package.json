@@ -18,28 +18,14 @@
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
-        "vibe-check": "echo '🟢 SYSTEM INTEGRITY: 100% - ULTRON IS ONLINE AND READY.'"
+        "vibe-check": "echo '🔍 CHECKING SYSTEM...' && npm run lint && echo '🟢 SYSTEM READY: PROCEED WITH CAUTION.'"
     },
     "dependencies": {
-        "@google/generative-ai": "^0.1.3",
         "@nestjs/common": "^10.0.0",
-        "@nestjs/config": "^3.2.0",
         "@nestjs/core": "^10.0.0",
-        "@nestjs/mapped-types": "*",
         "@nestjs/platform-express": "^10.0.0",
-        "@nestjs/platform-socket.io": "^10.0.0",
-        "@nestjs/schedule": "^4.0.0",
-        "@nestjs/swagger": "^7.3.0",
-        "@nestjs/typeorm": "^10.0.0",
-        "@nestjs/websockets": "^10.0.0",
-        "class-transformer": "^0.5.1",
-        "class-validator": "^0.14.1",
-        "reflect-metadata": "^0.2.0",
-        "rxjs": "^7.8.1",
-        "socket.io": "^4.7.0",
-        "sqlite3": "^5.1.7",
-        "swagger-ui-express": "^5.0.0",
-        "typeorm": "^0.3.20"
+        "reflect-metadata": "^0.1.13",
+        "rxjs": "^7.8.1"
     },
     "devDependencies": {
         "@nestjs/cli": "^10.0.0",
