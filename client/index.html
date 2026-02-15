@@ -140,6 +140,49 @@
             background-color: rgba(255, 255, 255, 0.05);
             transform: translateX(4px);
         }
+
+        @keyframes blink {
+            0% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.1;
+            }
+
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        .danger-zone-blink {
+            animation: blink 1s infinite;
+        }
+
+        /* Mission 16: DEFCON 1 */
+        @keyframes defcon-flash {
+            0% {
+                background-color: #0c1117;
+            }
+
+            50% {
+                background-color: #450a0a;
+            }
+
+            100% {
+                background-color: #0c1117;
+            }
+        }
+
+        body.mode-defcon-1 {
+            animation: defcon-flash 2s infinite;
+        }
+
+        body.mode-defcon-1 aside,
+        body.mode-defcon-1 header,
+        body.mode-defcon-1 #coords-hud {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -247,6 +290,17 @@
         const overrideBtn = document.getElementById('override-btn');
         const bannerEl = document.getElementById('emergency-banner');
 
+        // Mission 16: The Adaptive HUD
+        let activeEmergencies = 0;
+
+        function checkEmergencyStatus() {
+            if (activeEmergencies >= 3) {
+                document.body.classList.add('mode-defcon-1');
+            } else {
+                document.body.classList.remove('mode-defcon-1');
+            }
+        }
+
         // --- Socket Events ---
         socket.on('connect', () => {
             statusEl.innerText = 'SYSTEM ONLINE';
@@ -266,6 +320,27 @@
             lastIncidentCoords = [incident.latitude, incident.longitude];
             addIncidentToUI(incident);
             addMarkerToMap(incident);
+
+            // Mission 14: The Danger Zone
+            if (incident.priority === 'HIGH') {
+                activeEmergencies++;
+                checkEmergencyStatus();
+
+                const dangerZone = L.circle([incident.latitude, incident.longitude], {
+                    color: 'red',
+                    fillColor: '#f03',
+                    fillOpacity: 0.3,
+                    radius: 500,
+                    className: 'danger-zone-blink'
+                }).addTo(map);
+
+                // Auto-remove after 10 seconds
+                setTimeout(() => {
+                    map.removeLayer(dangerZone);
+                    activeEmergencies--;
+                    checkEmergencyStatus();
+                }, 10000);
+            }
 
             if (isEmergencyMode) {
                 drawRescuePath();
@@ -337,6 +412,7 @@
                 <div class="glass-panel p-3 rounded shadow-2xl border-white/20 text-white min-w-[200px]">
                     <div class="text-[9px] font-tactical text-cyber-accent mb-2 tracking-[0.2em] border-b border-white/10 pb-1">${incident.type}</div>
                     <div class="text-[11px] leading-relaxed mb-2">${incident.text}</div>
+                    <video src='https://www.w3schools.com/html/mov_bbb.mp4' autoplay loop muted style='width: 100px; margin-top: 10px; border-radius: 4px;'>
                     <div class="flex justify-between items-center mt-3">
                         <span class="text-[8px] text-white/40">LAT: ${incident.latitude.toFixed(4)}</span>
                         <span class="text-[8px] text-white/40">LNG: ${incident.longitude.toFixed(4)}</span>

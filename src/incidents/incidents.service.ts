@@ -5,6 +5,7 @@ import { CreateIncidentDto } from './dto/create-incident.dto';
 import { UpdateIncidentDto } from './dto/update-incident.dto';
 import { Incident } from './entities/incident.entity';
 import { EventsGateway } from '../events/events.gateway';
+import axios from 'axios';
 
 @Injectable()
 export class IncidentsService {
@@ -30,6 +31,25 @@ export class IncidentsService {
         });
         const saved = await this.incidentsRepository.save(incident);
         this.eventsGateway.emitNewIncident(saved);
+
+        // Mission 9: The Transmitter - Webhook Pattern
+        // Fire and Forget for HIGH priority incidents
+        if (saved.priority === 'HIGH') {
+            const payload = {
+                ...saved,
+                timestamp: new Date(),
+                source: 'OVERWATCH-CORE'
+            };
+
+            console.log(`[Transmitter] 🚀 High priority incident detected! Notifying Agent Hub...`);
+
+            // Fire and Forget: Do NOT await this call
+            axios.post('http://localhost:4000/dispatch', payload)
+                .catch(err => {
+                    console.error(`[Transmitter] ❌ Webhook failed: ${err.message}`);
+                });
+        }
+
         return saved;
     }
 
