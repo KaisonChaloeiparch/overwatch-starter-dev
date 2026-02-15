@@ -55,3 +55,67 @@ graph TD
 - **REST API (Port 3000)**: ใช้สำหรับการรับ-ส่งข้อมูลแบบดั้งเดิม (Ingestion)
 - **WebSockets (Port 3001)**: ใช้สำหรับการกระจายข้อมูลแบบ Real-time (Distribution)
 - **Intelligence Logic**: ฝังอยู่ใน `IncidentsService` ทำหน้าที่เป็นผู้ช่วยตัดสินใจเบื้องต้นให้กับระบบ
+
+---
+
+## 4. ผังคลาส (Class Diagram)
+
+สถาปัตยกรรมภายในของระบบแสดงความสัมพันธ์ระหว่าง Class และบทบาทหน้าที่หลักดังนี้:
+
+```mermaid
+classDiagram
+    class Dashboard {
+        +Socket socket
+        +LeafletMap map
+        +addIncidentToUI(incident)
+        +addMarkerToMap(incident)
+        +drawRescuePath()
+    }
+
+    class IncidentsController {
+        +create(dto)
+        +findAll()
+        +findOne(id)
+    }
+
+    class IncidentsService {
+        +Repository~Incident~ repository
+        +EventsGateway eventsGateway
+        +SmartDispatcherService smartDispatcher
+        +create(dto)
+        +analyzeThreat(text)
+    }
+
+    class Incident {
+        +string id
+        +string text
+        +string type
+        +string priority
+        +number latitude
+        +number longitude
+        +string status
+    }
+
+    class EventsGateway {
+        +Server server
+        +emitNewIncident(data)
+        +handlePing(data)
+    }
+
+    class SmartDispatcherService {
+        +findBestHospital(patient, hospitals)
+    }
+
+    class AgentHub {
+        +ExpressServer server
+        +dispatch(payload)
+    }
+
+    %% Relationships
+    Dashboard ..> EventsGateway : "WebSocket (Socket.io)"
+    IncidentsController --> IncidentsService : "Dependency"
+    IncidentsService --> Incident : "Manage Entity"
+    IncidentsService --> EventsGateway : "Call"
+    IncidentsService --> SmartDispatcherService : "Internal Utility"
+    IncidentsService ..> AgentHub : "HTTP Webhook (Porter)"
+```
