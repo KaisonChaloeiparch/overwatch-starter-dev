@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  core:
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:../data/db.sqlite
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  hub:
+    build:
+      context: ../overwatch-agents
+    ports:
+      - "4000:4000"
+    environment:
+      - CORE_URL=http://core:3000
+    depends_on:
+      - core
